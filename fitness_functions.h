@@ -3,7 +3,8 @@
 //  Migration model
 //
 //  Created by Cibrán López Álvarez on 12/12/2021.
-//
+//  Definition of the fitness and other auxiliar functions, as well as all the needed parameters
+
 
 #ifndef fitness_functions_h
 #define fitness_functions_h
@@ -12,13 +13,14 @@
 #include <string.h>
 #include "mathematical_model.h"
 
-#define N_population 100
-#define maximum_iterations 1000
+#define N_population 1000
 #define N_years 12
-#define converge_threeshold 100
+
+#define converge_threeshold 0.85
+#define maximum_time 150
 
 #define mutation_probability 0.001
-#define crossover_probability 0.7
+#define crossover_probability 0.8
 #define crossover_proportion 0.1
 
 #define x_0_length 21
@@ -27,6 +29,8 @@
 #define mu_length 25
 #define sigma_length 17
 #define delta_length 15
+
+#define beta_0 0.000024382635446
 
 #define x_0_gen_phen 16600 / (float) (powl(2, x_0_length) - 1)
 #define phi_gen_phen 100.35 / (float) (powl(2, phi_length) - 1)
@@ -38,22 +42,12 @@
 
 double x_exp[N_years] = {15329, 14177, 13031, 9762, 11271, 8688, 7571, 6983, 4778, 2067, 1586, 793};
 
-typedef struct {unsigned long int x_0; unsigned long long int phi; unsigned long int lambda; unsigned long int mu; unsigned long int sigma; unsigned int delta; double fitness;} population_structure;
+typedef struct {unsigned long int x_0; unsigned long int phi; unsigned long int lambda; unsigned long int mu; unsigned long int sigma; unsigned long int delta; double fitness;} population_structure;
 
 
 void ExitError(const char *miss, int errcode) {
     fprintf(stderr, "\nERROR: %s.\nStopping...\n\n", miss);
     exit(errcode);
-}
-
-double maximum_distance(double xt[N_years]) {
-    double distance = 0, aux;
-    for (int i = 0; i < N_years; i++) {
-        aux = fabs(x_exp[i] - xt[i]);
-        if (aux > distance)
-            distance = aux;
-    }
-    return distance;
 }
 
 double euclidean_distance(double xt[N_years]) {
@@ -64,6 +58,7 @@ double euclidean_distance(double xt[N_years]) {
 }
 
 void initialize(population_structure population[], unsigned int i) {
+    /* Random numbers for the initial population */
     population[i].x_0 = N_random(x_0_length);
     population[i].phi = N_random(phi_length);
     population[i].lambda = N_random(lambda_length);
@@ -82,16 +77,13 @@ void compute_fitness(population_structure population[], int i) {
     double delta = population[i].delta * delta_gen_phen;
     
     ODE_Parameters migration_parameters = {phi, beta_0, lambda, mu, sigma, delta};
-    
     double xt[N_years];
-    
-    if (Generate_EDO_Prediction(&xt, x_0, N_years, &migration_parameters) != 0)
-        printf("Unsuccessful integration\n");
-    
-    population[i].fitness = maximum_distance(xt);
+    Generate_EDO_Prediction(&xt, x_0, N_years, &migration_parameters);
+    population[i].fitness = euclidean_distance(xt);
 }
 
 void sort_by_fitness(population_structure population[]) {
+    /* Interchanging individuals when a fitter one is found, and using a temporal variable */
     population_structure temp;
     for (unsigned int i = 0; i < N_population; i++)
         for (unsigned int j = i+1; j < N_population; j++)
@@ -102,13 +94,28 @@ void sort_by_fitness(population_structure population[]) {
             }
 }
 
-int not_converged(population_structure population[], unsigned int iteration_counter) {
-    if (iteration_counter >= maximum_iterations)
-        return 0; // Maximum of iterations reached
+void print_best_fitness(population_structure population[], unsigned int iteration_counter, float start) {
+    /* Pinring the best result. They have to be alsready sorted */
+    printf("The best solution in %u epochs and %.2f seconds is: %.2f, with parameters:\nx_0: %.2f, phi: %.2f, lambda: %.2f, mu: %.2f, sigma: %.2f, delta: %.2f\n", iteration_counter, (float) (clock() - start) / CLOCKS_PER_SEC, population[0].fitness, population[0].x_0 * x_0_gen_phen, population[0].phi * phi_gen_phen - 100, population[0].lambda * lambda_gen_phen, population[0].mu * mu_gen_phen, population[0].sigma * sigma_gen_phen, population[0].delta * delta_gen_phen);
+}
+
+int not_converged(population_structure population[], unsigned int iteration_counter, float start) {
+    /* Checks if the population has converged to the best solution */
+    unsigned int counter = 0;
+    for (unsigned int i = 1; i < N_population; i++)
+        if (population[i].fitness == population[0].fitness)
+            counter++;
     
-    if (population[0].fitness <= converge_threeshold)
-        return 0; // The population converged
+    if (counter >= converge_threeshold * N_population) {
+        print_best_fitness(population, iteration_counter, start);
+        return 0; // Population converged
+    }
     
+    if ((clock() - start) / CLOCKS_PER_SEC >= maximum_time) {
+        print_best_fitness(population, iteration_counter, start);
+        return 0; // Exceeded maximum execution time
+    }
+
     return 1; // The population did not converge
 }
 
