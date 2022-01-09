@@ -3,7 +3,7 @@
 //  Migration model
 //
 //  Created by Lluis Alseda on 03/01/2020.
-//
+//  Implementation of the RKF78 method
 
 
 /* Runge-Kutta-Fehlberg-Simo 78 with adaptive stepsize
