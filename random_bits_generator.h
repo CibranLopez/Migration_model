@@ -2,8 +2,8 @@
 //  random_bits_generator.h
 //  Migration model
 //
-//  Created by Cibrán López Álvarez on 09/12/2021.
-//
+//  Created by Cibrán López Álvarez on 09/12/2021
+//  Definition of the generator of random numbers
 
 
 #ifndef random_bits_generator_h
@@ -76,24 +76,23 @@ float ran1(long *idum) {
 #undef RNMX
 
 
+/* Between 0.0 and 1.0 */
 float uniform(void) {
-    /* Between 0.0 and 1.0 */
     return ran1(&idum);
 }
 
 /* Based on von-neuman observation; rather inefficient */
 unsigned char random_bit(void) {
     unsigned char f, s;
-    
     do {
         f = 2 * ran1(&idum);
         s = 2 * ran1(&idum);
     } while (f == s);
-    
     return f;
 }
 
 unsigned long int N_random(int N){
+    /* Getting random numbers of order N */
     register unsigned char i;
     unsigned long int oneUL = 1UL, base = 0UL;
 
