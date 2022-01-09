@@ -2,8 +2,8 @@
 //  mathematical_model.h
 //  Migration model
 //
-//  Created by Cibrán López Álvarez on 09/12/2021.
-//
+//  Created by Cibrán López Álvarez on 09/12/2021
+//  Definiition of the model whose parameters we are trying to find
 
 
 #ifndef mathematical_model_h
@@ -11,8 +11,6 @@
 
 #include <math.h>
 #include <stdlib.h>
-
-#define beta_0 0.000024382635446
 
 #define ElliotSigmoidSCALE 1000
 #define TwoElliotSigmoidSCALE 2000
@@ -33,8 +31,8 @@ double ElliotSigmoid(double x, double sigma, double delta) {
 double Psi(double x, double mu, double sigma, double delta) {
     double ES = ElliotSigmoid(x, sigma, delta);
     sigma *= delta;
-    x /= delta;
     if (x < delta) {
+        x /= delta;
         ES = ES * (x + (mu * (1.0 - x) * (sigma + ElliotSigmoidSCALE)) / (sigma + TwoElliotSigmoidSCALE));
     }
     return ((1 - ES) * (sigma + TwoElliotSigmoidSCALE)) / (sigma * (1 + mu) + TwoElliotSigmoidSCALE);
@@ -57,12 +55,12 @@ int Generate_EDO_Prediction(double *xt, double x0, unsigned short number_of_year
     for (ty = 1; ty < number_of_years; ty++) {
         int status;
         while(t+h < ty) {
-            status = RKF78(&t, &x0, &h, &err, HMIN, HMAX, RKTOL, &pars, MigrationODE);
+            status = RKF78(&t, &x0, &h, &err, HMIN, HMAX, RKTOL, pars, MigrationODE);
               if (status)
                   return status;
         } // Adaptative stepsize h. To assure stopping at t = ty
         h = ty - t;
-        status = RKF78(&t, &x0, &h, &err, HMIN, HMAX, RKTOL, &pars, MigrationODE);
+        status = RKF78(&t, &x0, &h, &err, HMIN, HMAX, RKTOL, pars, MigrationODE);
         if (status)
             return status;
         xt[ty] = x0;
