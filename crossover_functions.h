@@ -14,6 +14,7 @@
 
 
 void one_point_crossover(unsigned long int p1, unsigned long int p2, unsigned long int *f1, unsigned long int *f2, int length) {
+    /* Randomly selects a point for merging the chromosomes */
     unsigned char d = uniform() * (length - 1) + 1;
     unsigned long int mask = 0xFFFFFFFFFFFFFFFFUL << d;
     
@@ -22,7 +23,7 @@ void one_point_crossover(unsigned long int p1, unsigned long int p2, unsigned lo
 }
 
 unsigned int get_index(void) {
-    /* The crossover_probability percent takes more changes to be crossed over */
+    /* Favoures the most fittests individuals to be selected as mates for crossover */
     if (uniform() < crossover_probability)
         return uniform() * (1 - crossover_probability) * N_population;
     else
@@ -30,7 +31,7 @@ unsigned int get_index(void) {
 }
 
 void make_crossover(population_structure population[], population_structure new_population[], unsigned int i) {
-    /* Getting the indexes and applying crossover to each parameter */
+    /* Gets the indexes and applies crossover to each parameter */
     unsigned int index_1 = get_index(), index_2 = get_index();
     
     one_point_crossover(population[index_1].x_0, population[index_2].x_0, &new_population[i].x_0, &new_population[i+1].x_0, x_0_length);
@@ -42,14 +43,14 @@ void make_crossover(population_structure population[], population_structure new_
 }
 
 void one_point_mutation(unsigned long int *f, int length) {
-    /* Randomly mutating a position in binary representation */
+    /* Randomly mutates a position in binary representation */
     for (int i = 0; i < length; i++)
     if (uniform() < mutation_probability)
         *f = (*f)^(1UL << (unsigned char) uniform() * length);
 }
 
 void mutate(population_structure population[], unsigned int i) {
-    /* Aapplying mutation to each parameter */
+    /* Applies mutation to each parameter */
     one_point_mutation(&population[i].x_0, x_0_length);
     one_point_mutation(&population[i].phi, phi_length);
     one_point_mutation(&population[i].lambda, lambda_length);

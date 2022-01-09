@@ -51,6 +51,7 @@ void ExitError(const char *miss, int errcode) {
 }
 
 double euclidean_distance(double xt[N_years]) {
+    /* Computes the euclidean distance between the obtained and expected populations */
     double distance = 0;
     for (int i = 0; i < N_years; i++)
         distance += pow(x_exp[i] - xt[i], 2);
@@ -58,7 +59,7 @@ double euclidean_distance(double xt[N_years]) {
 }
 
 void initialize(population_structure population[], unsigned int i) {
-    /* Random numbers for the initial population */
+    /* Assignes random numbers for a chromosome */
     population[i].x_0 = N_random(x_0_length);
     population[i].phi = N_random(phi_length);
     population[i].lambda = N_random(lambda_length);
@@ -68,7 +69,7 @@ void initialize(population_structure population[], unsigned int i) {
 }
 
 void compute_fitness(population_structure population[], int i) {
-    /* Gets the values from the genotype and computes its integral, finally saving its fitness in the 'population' structure by using the RKF 7-8 method */
+    /* Gets the values from the genotype and computes the integral, finally saving its fitness in the 'population' structure by using the RKF 7-8 method */
     double x_0 = population[i].x_0 * x_0_gen_phen;
     double phi = population[i].phi * phi_gen_phen - 100; // Phi has to be displaced.
     double lambda = population[i].lambda * lambda_gen_phen;
@@ -83,7 +84,7 @@ void compute_fitness(population_structure population[], int i) {
 }
 
 void sort_by_fitness(population_structure population[]) {
-    /* Interchanging individuals when a fitter one is found, and using a temporal variable */
+    /* Interchanges individuals when a fitter one is found by using a temporal variable */
     population_structure temp;
     for (unsigned int i = 0; i < N_population; i++)
         for (unsigned int j = i+1; j < N_population; j++)
@@ -95,12 +96,12 @@ void sort_by_fitness(population_structure population[]) {
 }
 
 void print_best_fitness(population_structure population[], unsigned int iteration_counter, float start) {
-    /* Pinring the best result. They have to be alsready sorted */
-    printf("The best solution in %u epochs and %.2f seconds is: %.2f, with parameters:\nx_0: %.2f, phi: %.2f, lambda: %.2f, mu: %.2f, sigma: %.2f, delta: %.2f\n", iteration_counter, (float) (clock() - start) / CLOCKS_PER_SEC, population[0].fitness, population[0].x_0 * x_0_gen_phen, population[0].phi * phi_gen_phen - 100, population[0].lambda * lambda_gen_phen, population[0].mu * mu_gen_phen, population[0].sigma * sigma_gen_phen, population[0].delta * delta_gen_phen);
+    /* Prints the best result, being the 'population' structure already sorted */
+    printf("The best solution in %u epochs and %.2f seconds is: %.2Lf, with parameters:\nx_0: %.2f, phi: %.2f, lambda: %.2f, mu: %.2f, sigma: %.2f, delta: %.2f\n", iteration_counter, (float) (clock() - start) / CLOCKS_PER_SEC, sqrtl(population[0].fitness), population[0].x_0 * x_0_gen_phen, population[0].phi * phi_gen_phen - 100, population[0].lambda * lambda_gen_phen, population[0].mu * mu_gen_phen, population[0].sigma * sigma_gen_phen, population[0].delta * delta_gen_phen);
 }
 
 int not_converged(population_structure population[], unsigned int iteration_counter, float start) {
-    /* Checks if the population has converged to the best solution */
+    /* Checks if the population has converged to the best solution or if the maximum computing time has been exceeded */
     unsigned int counter = 0;
     for (unsigned int i = 1; i < N_population; i++)
         if (population[i].fitness == population[0].fitness)
@@ -116,7 +117,7 @@ int not_converged(population_structure population[], unsigned int iteration_coun
         return 0; // Exceeded maximum execution time
     }
 
-    return 1; // The population did not converge
+    return 1; // Population not converged
 }
 
 

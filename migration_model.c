@@ -1,9 +1,9 @@
 //
-//  main.c
+//  migration_model.c
 //  Migration model
 //
 //  Created by Cibrán López Álvarez on 09/12/2021.
-//
+//  Main part of the algorithm
 
 
 #include "RKF78.h"
@@ -13,7 +13,7 @@
 #include "fitness_functions.h"
 
 
-/* Here the main algorithm beggins: it only needs the definition of the search range for each variable, as well as the number of individuals in the population and the minimum and maximum number of steps */
+/* Beggining of the main algorithm. It needs the definition of the search range for each variable, the size of the population and the maximum execution time. All the parameters are defined in 'fitness_functions.h' */
 int main() {
     unsigned int iteration_counter = 1;
     clock_t start;
@@ -30,10 +30,10 @@ int main() {
         compute_fitness(population, i); // Computing the initial fitness
     }
     
-    sort_by_fitness(population); // Getting the order by fitness
+    sort_by_fitness(population); // Getting the structure ordered by fitness
     
     /* Starting the main loop */
-    while (not_converged(population, iteration_counter, start)) {
+    while (not_converged(population, iteration_counter, start)) { // Checking for conversion
         iteration_counter++;
         
         for (unsigned int i = N_population * crossover_proportion; i < N_population - 1; i += 2)
@@ -44,6 +44,6 @@ int main() {
             compute_fitness(population, i); // Computing the new fitness
         }
         
-        sort_by_fitness(population); // Getting the order by fitness
+        sort_by_fitness(population); // Getting the structure ordered by fitness
     }
 }

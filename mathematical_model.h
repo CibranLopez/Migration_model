@@ -44,6 +44,7 @@ void MigrationODE(double t, double x, double *der, void *Params){
 }
 
 int Generate_EDO_Prediction(double *xt, double x0, unsigned short number_of_years, ODE_Parameters *pars) {
+    /* Generates predictions for a given set of parameters */
     register unsigned ty;
     xt[0] = x0; // Storing IC x(0)
     
