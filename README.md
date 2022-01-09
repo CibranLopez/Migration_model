@@ -1,4 +1,4 @@
-# Migration_model
+# Migration model
 
 Here an implementation of a genetic algoritm can be found, devoted to migration of Andouins problem.
 
