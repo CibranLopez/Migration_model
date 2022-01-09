@@ -26,14 +26,14 @@ int main() {
         ExitError("When allocating memory for the population vector", 1);
     
     for (unsigned int i = 0; i < N_population; i++) {
-        initialize(population, i); // Generating initial population
+        initialize(population, i); // Generating the initial population
         compute_fitness(population, i); // Computing the initial fitness
     }
     
     sort_by_fitness(population); // Getting the structure ordered by fitness
     
     /* Starting the main loop */
-    while (not_converged(population, iteration_counter, start)) { // Checking for conversion
+    while (not_converged(population, iteration_counter, start)) { // Checking for convergence
         iteration_counter++;
         
         for (unsigned int i = N_population * crossover_proportion; i < N_population - 1; i += 2)
